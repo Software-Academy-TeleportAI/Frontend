@@ -10,6 +10,8 @@ import {
   TerminalSquare,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
@@ -23,10 +25,19 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    Cookies.remove("auth_token");
+
+    router.push("/login");
+
+    // Optional: Call Laravel Logout API to invalidate token on server side
+    // fetch('http://localhost:8000/api/logout', { ... })
+  };
 
   return (
     <div className="flex h-screen bg-[#030014] overflow-hidden">
-      {/* Sidebar */}
       <aside className="w-64 bg-slate-950/50 backdrop-blur-xl border-r border-white/5 flex flex-col relative z-20">
         <div className="p-6 flex items-center gap-3 border-b border-white/5">
           <div className="w-8 h-8 rounded bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center">
@@ -66,16 +77,17 @@ export default function DashboardLayout({
         </nav>
 
         <div className="p-4 border-t border-white/5">
-          <button className="flex items-center gap-3 w-full px-4 py-3 text-slate-400 hover:text-red-400 hover:bg-red-500/5 rounded-lg transition-colors">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-4 py-3 text-slate-400 hover:text-red-400 hover:bg-red-500/5 rounded-lg transition-colors"
+          >
             <LogOut className="w-5 h-5" />
             <span>Disconnect</span>
           </button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 relative overflow-y-auto">
-        {/* Background Gradients */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
           <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px]" />
           <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px]" />
