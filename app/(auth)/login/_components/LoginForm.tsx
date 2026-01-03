@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import { Mail, Lock, Loader2 } from "lucide-react";
+import AuthenticateFlow from "@/flows/autheticate";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -18,15 +19,11 @@ export default function LoginForm() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await AuthenticateFlow.login(email, password);
 
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || "Authentication failed");
+      if (!data.token) {
+        throw new Error("No token returned from server");
+      }
 
       // 2. Save Token to Cookie (Expires in 7 days)
       // Assuming Laravel returns { token: "..." }
