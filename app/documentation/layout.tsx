@@ -12,6 +12,7 @@ import {
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { removeAuthToken } from "@/app/actions";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
@@ -28,7 +29,8 @@ export default function DashboardLayout({
   const router = useRouter();
 
   const handleLogout = () => {
-    Cookies.remove("auth_token");
+    removeAuthToken();
+    // Cookies.remove("auth_token");
 
     router.push("/login");
 
