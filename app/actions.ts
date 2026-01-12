@@ -5,9 +5,36 @@ import { revalidatePath } from "next/cache";
 
 export async function saveToken(formData: FormData) {
   const token = formData.get("token") as string;
+  const cookieStore = await cookies();
+
+  const authToken = cookieStore.get("auth_token")?.value;
+
+  if (!authToken) {
+    throw new Error("User is not authenticated");
+  }
 
   if (token) {
-    const cookieStore = await cookies();
+    const res = await fetch(
+      "http://localhost:8000/api/user/github_access_token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          access_token: token,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
+
     cookieStore.set("github_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
