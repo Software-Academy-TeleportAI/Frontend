@@ -50,6 +50,7 @@ export default function RepoDetailView({
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(
     null,
   );
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleGenerate = async (isTechnical: boolean) => {
     setIsGenerating(true);
@@ -132,8 +133,44 @@ export default function RepoDetailView({
     return () => clearInterval(poll);
   }, [jobId]);
 
-  const handleSaveAnalysis = () => {
-    console.log("result", result);
+  const handleSaveAnalysis = async () => {
+    if (!result) return;
+    setIsSaving(true);
+
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/repository/analysis",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            repo_id: repo.id,
+            repo_name: repo.name,
+            summary: result.summary,
+            architecture_diagram: result.architecture_diagram,
+            readme: result.readme,
+            files: result.files,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Saved successfully:", data);
+      alert("Analysis saved to database successfully!");
+    } catch (error) {
+      console.error("Failed to save analysis:", error);
+      alert("Failed to save analysis. Check console for details.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -206,16 +243,32 @@ export default function RepoDetailView({
                 </>
               )}
             </button>
-            {result ? (
-              <div style={{ display: "flex", justifyContent: "center" }}>
+            {result && (
+              <div className="flex justify-center mt-4">
                 <button
                   onClick={handleSaveAnalysis}
-                  className="mt-4 bg-purple-900/20 border border-purple-500/50 hover:bg-purple-500/20 text-purple-400 hover:text-purple-300 py-2 px-4 rounded-lg transition-colors"
+                  disabled={isSaving}
+                  className={`
+        flex items-center gap-2 py-2 px-6 rounded-lg font-medium transition-all
+        border
+        ${
+          isSaving
+            ? "bg-purple-900/10 border-purple-500/20 text-purple-500/50 cursor-not-allowed"
+            : "bg-purple-900/20 border-purple-500/50 hover:bg-purple-500/20 text-purple-400 hover:text-purple-300 hover:shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+        }
+      `}
                 >
-                  Save Analysis
+                  {isSaving ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>Save Analysis</>
+                  )}
                 </button>
               </div>
-            ) : null}
+            )}
           </div>
         </div>
 
