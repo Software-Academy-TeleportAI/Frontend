@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { Book, Search } from "lucide-react";
 import { NeonInput } from "@/components/NeonInput";
 import DocCard from "./_components/DocCard";
+import Link from "next/link";
 
 const formatSize = (bytes: number) => {
   if (bytes === 0) return "0 B";
@@ -94,7 +95,33 @@ export default async function DocumentationPage() {
       </div>
 
       {docs.length === 0 ? (
-        <span>empty state</span>
+        <div
+          style={{
+            fontSize: "1.25rem",
+            color: "#94a3b8",
+            height: "70vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              alignItems: "center",
+            }}
+          >
+            <span>No documentation available</span>
+            <Link
+              href="/dashboard"
+              className="ml-2 text-cyan-400 hover:underline"
+            >
+              Go to Dashboard
+            </Link>
+          </div>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {docs.map((doc: any) => (
