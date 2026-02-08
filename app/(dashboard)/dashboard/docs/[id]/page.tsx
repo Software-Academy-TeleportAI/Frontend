@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import MermaidDiagram from "@/app/documentation/_components/MermaidDiagram";
 import ReadmeEditor from "@/app/(dashboard)/_components/ReadmeEditor";
+import DeleteDocButton from "@/app/(dashboard)/_components/DeleteButton";
 
 interface AnalysisData {
   id: number;
@@ -55,6 +56,13 @@ export default async function DocDetailPage({
 }) {
   const { id } = await params;
   const doc = await getAnalysis(id);
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get("auth_token")?.value;
+
+  if (!token) {
+    notFound();
+  }
 
   if (!doc) {
     return notFound();
@@ -103,6 +111,7 @@ export default async function DocDetailPage({
                 <div className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-mono">
                   STATUS: ARCHIVED
                 </div>
+                <DeleteDocButton id={doc.id} authToken={token} />
               </div>
             </div>
           </div>
