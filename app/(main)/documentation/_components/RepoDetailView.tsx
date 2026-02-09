@@ -11,6 +11,7 @@ import RefreshCw from "./IconHelper";
 import ModeSelector from "./ModeSelector";
 import GenerationFlowEntity from "@/flows/generation";
 import MermaidDiagram from "./MermaidDiagram";
+import { saveAnalysis } from "../actions/saveAnalysis";
 
 if (typeof window !== "undefined") {
   mermaid.initialize({ startOnLoad: false, theme: "dark" });
@@ -72,8 +73,6 @@ export default function RepoDetailView({
       const responseData =
         await GenerationFlowEntity.generateRepositoryAnalysis(data);
 
-      console.log("Response from /api/generate:", responseData);
-
       const { job_id } = responseData;
       setJobId(job_id);
       setLogs((prev) => [...prev, `> Job #${job_id} queued successfully.`]);
@@ -113,7 +112,6 @@ export default function RepoDetailView({
             ...prev,
             "> ✅ Analysis Complete. Rendering Output.",
           ]);
-          console.log("responseData.result", responseData.result);
 
           setResult(responseData.result);
           setIsGenerating(false);
@@ -138,32 +136,21 @@ export default function RepoDetailView({
     setIsSaving(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/repository/analysis",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            repo_id: repo.id,
-            repo_name: repo.name,
-            summary: result.summary,
-            architecture_diagram: result.architecture_diagram,
-            readme: result.readme,
-            files: result.files,
-          }),
-        },
-      );
+      const payload = {
+        repo_id: repo.id,
+        repo_name: repo.name,
+        summary: result.summary,
+        architecture_diagram: result.architecture_diagram,
+        readme: result.readme,
+        files: result.files,
+      };
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
+      const response = await saveAnalysis(payload);
+
+      if (!response.success) {
+        throw new Error(response.error);
       }
 
-      const data = await response.json();
-      console.log("Saved successfully:", data);
       alert("Analysis saved to database successfully!");
     } catch (error) {
       console.error("Failed to save analysis:", error);

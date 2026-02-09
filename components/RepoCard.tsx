@@ -1,15 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  GitBranch,
-  Star,
-  FileText,
-  Zap,
-  CheckCircle2,
-  Loader2,
-} from "lucide-react";
+import { Star, FileText } from "lucide-react";
 import Link from "next/link";
 
 interface RepoProps {
@@ -27,15 +19,6 @@ export const RepoCard = ({
   language,
   stars,
 }: RepoProps) => {
-  const [status, setStatus] = useState<"idle" | "processing" | "done">("idle");
-
-  // const handleGenerate = () => {
-  //   // setStatus("processing");
-  //   // Simulate AI delay
-  //   // setTimeout(() => setStatus("done"), 3000);
-  //   console.log(`Generating docs for ${id}...`);
-  // };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -70,8 +53,8 @@ export const RepoCard = ({
                 language === "TypeScript"
                   ? "bg-blue-400"
                   : language === "Python"
-                  ? "bg-yellow-400"
-                  : "bg-green-400"
+                    ? "bg-yellow-400"
+                    : "bg-green-400"
               }`}
             />
             {language}

@@ -21,8 +21,10 @@ async function getGeneratedDocs() {
     return [];
   }
 
+  const serverUrl = process.env.SERVER_URL;
+
   try {
-    const res = await fetch("http://localhost:8000/api/repository/analysis", {
+    const res = await fetch(`${serverUrl}/api/repository/analysis`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",

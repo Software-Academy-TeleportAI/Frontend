@@ -1,3 +1,4 @@
+// app/page.tsx
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { WelcomeHero } from "@/components/WelcomeHero";
@@ -12,6 +13,10 @@ export default async function LandingPage() {
 
     if (isValid) {
       redirect("/dashboard");
+    } else {
+      // 🟢 FIX: If token exists but is invalid, DELETE IT.
+      // This prevents the user from being "logged in" with a bad token.
+      cookieStore.delete("auth_token");
     }
   }
 

@@ -15,11 +15,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
+import { updateDocumentation } from "../actions/updateReadme";
 
 interface ReadmeEditorProps {
   initialContent: string;
   repoId: number;
-  authToken: string;
 }
 
 type NotificationState = {
@@ -31,7 +31,6 @@ type NotificationState = {
 export default function ReadmeEditor({
   initialContent,
   repoId,
-  authToken,
 }: ReadmeEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState(initialContent);
@@ -97,21 +96,13 @@ export default function ReadmeEditor({
 
   const handleSave = async () => {
     setIsSaving(true);
-    try {
-      const res = await fetch(
-        `http://localhost:8000/api/repository/analysis/${repoId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ readme: content }),
-        },
-      );
 
-      if (!res.ok) throw new Error("Failed to save");
+    try {
+      const result = await updateDocumentation(repoId, content);
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       setIsEditing(false);
       showMessage("success", "Documentation updated successfully.");

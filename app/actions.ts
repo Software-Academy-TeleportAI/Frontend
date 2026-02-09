@@ -13,21 +13,20 @@ export async function saveToken(formData: FormData) {
     throw new Error("User is not authenticated");
   }
 
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+
   if (token) {
-    const res = await fetch(
-      "http://localhost:8000/api/user/github_access_token",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({
-          access_token: token,
-        }),
-      }
-    );
+    const res = await fetch(`${serverUrl}/api/user/github_access_token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({
+        access_token: token,
+      }),
+    });
 
     const data = await res.json();
 

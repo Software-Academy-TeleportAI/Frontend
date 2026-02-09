@@ -2,8 +2,13 @@ import Link from "next/link";
 import { Fingerprint } from "lucide-react";
 import LoginForm from "./_components/LoginForm";
 import AuthCardWrapper from "../_components/AuthCardWrapper";
+import { cookies } from "next/headers";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const cookieStore = await cookies();
+  if (cookieStore.has("auth_token")) {
+    cookieStore.delete("auth_token");
+  }
   return (
     <AuthCardWrapper className="w-full max-w-md bg-black/40 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />

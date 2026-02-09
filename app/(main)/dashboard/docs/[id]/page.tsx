@@ -8,9 +8,9 @@ import {
   LayoutTemplate,
   Terminal,
 } from "lucide-react";
-import MermaidDiagram from "@/app/documentation/_components/MermaidDiagram";
-import ReadmeEditor from "@/app/(dashboard)/_components/ReadmeEditor";
-import DeleteDocButton from "@/app/(dashboard)/_components/DeleteButton";
+import MermaidDiagram from "@/app/(main)/documentation/_components/MermaidDiagram";
+import ReadmeEditor from "@/app/(main)/_components/ReadmeEditor";
+import DeleteDocButton from "@/app/(main)/_components/DeleteButton";
 
 interface AnalysisData {
   id: number;
@@ -29,17 +29,16 @@ async function getAnalysis(id: string): Promise<AnalysisData | null> {
 
   if (!token) return null;
 
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+
   try {
-    const res = await fetch(
-      `http://localhost:8000/api/repository/analysis/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        cache: "no-store",
+    const res = await fetch(`${serverUrl}/api/repository/analysis/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
       },
-    );
+      cache: "no-store",
+    });
 
     if (!res.ok) return null;
     return await res.json();
@@ -111,7 +110,7 @@ export default async function DocDetailPage({
                 <div className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-mono">
                   STATUS: ARCHIVED
                 </div>
-                <DeleteDocButton id={doc.id} authToken={token} />
+                <DeleteDocButton id={doc.id} />
               </div>
             </div>
           </div>
@@ -133,11 +132,7 @@ export default async function DocDetailPage({
           </div>
         )}
         <div className="w-full">
-          <ReadmeEditor
-            initialContent={doc.readme}
-            repoId={doc.id}
-            authToken={(await cookies()).get("auth_token")?.value || ""}
-          />
+          <ReadmeEditor initialContent={doc.readme} repoId={doc.id} />
         </div>
         <div className="bg-[#0B0F17] border border-white/10 rounded-xl overflow-hidden shadow-lg">
           <div className="bg-white/5 px-6 py-4 border-b border-white/5 flex items-center gap-2">

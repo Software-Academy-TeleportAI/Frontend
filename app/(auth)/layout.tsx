@@ -5,7 +5,6 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative">
-      {/* Ambient background glow for Auth pages */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[100px] -z-10" />
       {children}
     </div>

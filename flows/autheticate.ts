@@ -7,7 +7,8 @@ type TRegisterFormData = {
 
 class AuthenticateFlow {
   async register(formData: TRegisterFormData) {
-    const res = await fetch("http://localhost:8000/api/register", {
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+    const res = await fetch(`${serverUrl}/api/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +30,8 @@ class AuthenticateFlow {
   }
 
   async login(email: string, password: string) {
-    const res = await fetch("http://localhost:8000/api/login", {
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+    const res = await fetch(`${serverUrl}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

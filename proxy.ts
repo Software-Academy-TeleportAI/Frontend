@@ -5,7 +5,7 @@ const protectedRoutes = ["/dashboard"];
 
 export function proxy(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
+    request.nextUrl.pathname.startsWith(route),
   );
 
   if (isProtectedRoute) {
@@ -13,7 +13,7 @@ export function proxy(request: NextRequest) {
 
     if (!token) {
       const loginUrl = new URL("/login", request.url);
-      // Optional: Add ?from=/dashboard to redirect back after login
+
       loginUrl.searchParams.set("from", request.nextUrl.pathname);
       return NextResponse.redirect(loginUrl);
     }

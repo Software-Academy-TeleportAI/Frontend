@@ -14,8 +14,9 @@ type TGenerationStatusData = {
 
 class GenerationFlow {
   async generateRepositoryAnalysis(data: TGenerationData) {
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
     const response = await axios.post(
-      "http://localhost:8000/api/generate",
+      `${serverUrl}/api/generate`,
       {
         repo_url: data.repo_url,
         repo_name: data.repo_name,
@@ -26,21 +27,22 @@ class GenerationFlow {
           Authorization: `Bearer ${data.authToken}`,
           Accept: "application/json",
         },
-      }
+      },
     );
 
     return response.data;
   }
 
   async generateStatus(data: TGenerationStatusData) {
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
     const response = await axios.get(
-      `http://localhost:8000/api/generate/status/${data.jobId}`,
+      `${serverUrl}/api/generate/status/${data.jobId}`,
       {
         headers: {
           Authorization: `Bearer ${data.authToken}`,
           Accept: "application/json",
         },
-      }
+      },
     );
     return response.data;
   }
