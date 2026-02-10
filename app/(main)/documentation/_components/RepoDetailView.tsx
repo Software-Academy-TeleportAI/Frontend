@@ -1,9 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bot, FileText, Terminal, ArrowLeft, Zap } from "lucide-react";
+import {
+  Bot,
+  FileText,
+  Terminal,
+  ArrowLeft,
+  Zap,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import mermaid from "mermaid";
@@ -38,6 +46,11 @@ interface JobResult {
   readme: string;
 }
 
+type NotificationState = {
+  type: "success" | "error";
+  message: string;
+} | null;
+
 export default function RepoDetailView({
   repo,
   authToken,
@@ -51,7 +64,16 @@ export default function RepoDetailView({
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(
     null,
   );
+  const [notification, setNotification] = useState<NotificationState>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  const showNotification = (type: "success" | "error", message: string) => {
+    setNotification({ type, message });
+
+    setTimeout(() => {
+      setNotification(null);
+    }, 4000);
+  };
 
   const handleGenerate = async (isTechnical: boolean) => {
     setIsGenerating(true);
@@ -80,6 +102,7 @@ export default function RepoDetailView({
       console.error(error);
       setLogs((prev) => [...prev, "> ❌ Error: Failed to contact backend."]);
       setIsGenerating(false);
+      showNotification("error", "Failed to contact backend system.");
     }
   };
 
@@ -120,6 +143,7 @@ export default function RepoDetailView({
           setLogs((prev) => [...prev, "> ❌ Job failed on server side."]);
           setIsGenerating(false);
           setJobId(null);
+          showNotification("error", "Analysis job failed.");
         }
       } catch (e) {
         console.error("Polling error", e);
@@ -151,10 +175,10 @@ export default function RepoDetailView({
         throw new Error(response.error);
       }
 
-      alert("Analysis saved to database successfully!");
+      showNotification("success", "Analysis successfully saved to database.");
     } catch (error) {
       console.error("Failed to save analysis:", error);
-      alert("Failed to save analysis. Check console for details.");
+      showNotification("error", "Failed to save data. Check logs.");
     } finally {
       setIsSaving(false);
     }
@@ -162,6 +186,46 @@ export default function RepoDetailView({
 
   return (
     <div className="space-y-6">
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className={`
+              fixed bottom-6 right-6 z-50 flex items-center gap-3 px-6 py-4 rounded-xl border shadow-2xl backdrop-blur-md
+              ${
+                notification.type === "success"
+                  ? "bg-slate-900/90 border-green-500/30 text-green-400 shadow-[0_0_30px_rgba(74,222,128,0.1)]"
+                  : "bg-slate-900/90 border-red-500/30 text-red-400 shadow-[0_0_30px_rgba(248,113,113,0.1)]"
+              }
+            `}
+          >
+            {notification.type === "success" ? (
+              <CheckCircle className="w-6 h-6" />
+            ) : (
+              <XCircle className="w-6 h-6" />
+            )}
+            <div className="flex flex-col">
+              <span className="font-bold text-sm uppercase tracking-wider">
+                {notification.type === "success"
+                  ? "System Success"
+                  : "System Error"}
+              </span>
+              <span className="text-sm text-slate-300">
+                {notification.message}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-4 p-1 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <XCircle className="w-4 h-4 opacity-50" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <Link
         href="/dashboard"
         className="inline-flex items-center text-slate-400 hover:text-cyan-400 transition-colors gap-2 text-sm mb-4 group"
