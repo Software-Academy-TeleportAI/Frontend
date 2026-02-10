@@ -4,7 +4,7 @@ import DashboardPage from "../_components/DashboardPage";
 async function getRepos(token: string) {
   try {
     const response = await fetch(
-      "https://api.github.com/user/repos?sort=updated&per_page=10",
+      "https://api.github.com/user/repos?sort=updated&per_page=20",
       {
         headers: {
           Authorization: `Bearer ${token}`,
